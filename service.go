@@ -19,3 +19,6 @@ var (
 	// ErrEmpty is returned when provided string si empty
 	ErrEmpty = errors.New("Empty string")
 )
+
+// ServiceMiddleware is a chain-able behavior modifier for EchoService.
+type ServiceMiddleware func(EchoService) EchoService

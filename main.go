@@ -1,58 +1,27 @@
 package main
 
 import (
-	"fmt"
+	"context"
+	"flag"
 	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/metrics"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	httptransport "github.com/go-kit/kit/transport/http"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"os"
-	"time"
 )
 
-type loggingMiddleware struct {
-	logger log.Logger
-	next   EchoService
-}
-
-func (mw loggingMiddleware) Echo(s string) (output string, err error) {
-	defer func(begin time.Time) {
-		mw.logger.Log(
-			"method", "echo",
-			"input", s,
-			"output", output,
-			"err", err,
-			"took", time.Since(begin),
-		)
-	}(time.Now())
-
-	output, err = mw.next.Echo(s)
-	return
-}
-
-type instrumentingMiddleware struct {
-	requestCount   metrics.Counter
-	requestLatency metrics.Histogram
-	next           EchoService
-}
-
-func (mw instrumentingMiddleware) Echo(s string) (output string, err error) {
-	defer func(begin time.Time) {
-		lvs := []string{"method", "echo", "error", fmt.Sprint(err != nil)}
-		mw.requestCount.With(lvs...).Add(1)
-		mw.requestLatency.With(lvs...).Observe(time.Since(begin).Seconds())
-	}(time.Now())
-
-	output, err = mw.next.Echo(s)
-	return
-
-}
-
 func main() {
-	logger := log.NewLogfmtLogger(os.Stderr)
+	var (
+		listen = flag.String("listen", ":8080", "HTTP listen address")
+		proxy  = flag.String("proxy", "", "Optional comma-separated list of URLs to proxy echo requests")
+	)
+	flag.Parse()
+
+	var logger log.Logger
+	logger = log.NewLogfmtLogger(os.Stderr)
+	logger = log.With(logger, "listen", *listen, "caller", log.DefaultCaller)
 
 	fieldKeys := []string{"method", "error"}
 	requestCount := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
@@ -70,8 +39,9 @@ func main() {
 
 	var svc EchoService
 	svc = echoService{}
-	svc = loggingMiddleware{logger, svc}
-	svc = instrumentingMiddleware{requestCount, requestLatency, svc}
+	svc = proxyingMiddleware(context.Background(), *proxy, logger)(svc)
+	svc = loggingMiddleware(logger)(svc)
+	svc = instrumentingMiddleware(requestCount, requestLatency)(svc)
 
 	echoHandler := httptransport.NewServer(
 		makeEchoEndpoint(svc),
@@ -81,6 +51,6 @@ func main() {
 
 	http.Handle("/echo", echoHandler)
 	http.Handle("/metrics", promhttp.Handler())
-	logger.Log("msg", "HTTP server", "addr", ":8080")
-	logger.Log("err", http.ListenAndServe(":8080", nil))
+	logger.Log("msg", "HTTP", "addr", *listen)
+	logger.Log("err", http.ListenAndServe(*listen, nil))
 }
