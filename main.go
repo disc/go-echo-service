@@ -12,11 +12,12 @@ import (
 	"os"
 )
 
+var (
+	listen = flag.String("listen", ":8080", "HTTP listen address")
+	proxy  = flag.String("proxy", "", "Optional comma-separated list of URLs to proxy echo requests")
+)
+
 func main() {
-	var (
-		listen = flag.String("listen", ":8080", "HTTP listen address")
-		proxy  = flag.String("proxy", "", "Optional comma-separated list of URLs to proxy echo requests")
-	)
 	flag.Parse()
 
 	var logger log.Logger

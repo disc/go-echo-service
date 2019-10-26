@@ -5,11 +5,16 @@
       file:
         path: /tmp/go-echo-service
         state: directory
-    - name: Copiy built application to the remote server
-      copy: src=../.build/app dest=/tmp/go-echo-service/app
-        mode=0755
+    - name: Copy built application to the remote server
+      copy:
+        src: ../.build/app
+        dest: /tmp/go-echo-service/app
+        mode: 0755
     - name: Create systemd unit file
-      template: src=go-echo.service.j2 dest=/lib/systemd/system/go-echo.service mode=644
+      template:
+        src: go-echo.service.j2
+        dest: "/lib/systemd/system/go-echo@.service"
+        mode: 644
       become: true
       notify:
         - reload systemctl
@@ -17,7 +22,12 @@
       systemd:
         state: restarted
         daemon_reload: yes
-        name: go-echo.service
+        enabled: yes
+        name: go-echo@{{ item }}
+      with_items:
+        - 8000
+        - 8001
+        - 8002
       become: true
   handlers:
     - name: reload systemctl
