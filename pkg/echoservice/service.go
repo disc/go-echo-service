@@ -1,4 +1,4 @@
-package main
+package echoservice
 
 import "errors"
 
@@ -7,6 +7,10 @@ type EchoService interface {
 }
 
 type echoService struct{}
+
+func NewEchoService() EchoService {
+	return echoService{}
+}
 
 func (echoService) Echo(s string) (string, error) {
 	if s == "" {

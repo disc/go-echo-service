@@ -1,4 +1,4 @@
-package main
+package echoservice
 
 import (
 	"bytes"
@@ -18,7 +18,7 @@ type echoResponse struct {
 	Err string `json:"err, omitempty"`
 }
 
-func makeEchoEndpoint(svc EchoService) endpoint.Endpoint {
+func MakeEchoEndpoint(svc EchoService) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(echoRequest)
 		v, err := svc.Echo(req.S)
@@ -29,7 +29,7 @@ func makeEchoEndpoint(svc EchoService) endpoint.Endpoint {
 	}
 }
 
-func decodeEchoRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func DecodeEchoRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var request echoRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return nil, err
@@ -45,7 +45,7 @@ func decodeEchoResponse(_ context.Context, r *http.Response) (interface{}, error
 	return response, nil
 }
 
-func encodeResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
+func EncodeResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
 	return json.NewEncoder(w).Encode(response)
 }
 

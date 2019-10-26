@@ -1,9 +1,9 @@
 .PHONY: build
 build:
 	@[ -d .build ] || mkdir -p .build
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o .build/app ./cmd/echo-service
-	@file  .build/app
-	@du -h .build/app
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o .build/echo-service ./cmd/echoservice/main.go
+	@file  .build/echo-service
+	@du -h .build/echo-service
 
 .PHONY: test
 test:

@@ -5,7 +5,7 @@ Description=Go echo service
 User=www-data
 Group=www-data
 
-ExecStart=/tmp/go-echo-service/app --listen=:%i
+ExecStart = /tmp/echo-service --listen=:%i
 
 Restart=always
 RestartSec=3

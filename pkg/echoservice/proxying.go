@@ -1,4 +1,4 @@
-package main
+package echoservice
 
 import (
 	"context"
@@ -36,7 +36,7 @@ func (mw proxymw) Echo(s string) (string, error) {
 	return resp.V, nil
 }
 
-func proxyingMiddleware(ctx context.Context, instances string, logger log.Logger) ServiceMiddleware {
+func ProxyingMiddleware(ctx context.Context, instances string, logger log.Logger) ServiceMiddleware {
 	// If instances is empty, don't proxy.
 	if instances == "" {
 		logger.Log("proxy_to", "none")

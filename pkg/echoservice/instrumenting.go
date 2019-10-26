@@ -1,4 +1,4 @@
-package main
+package echoservice
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func instrumentingMiddleware(
+func InstrumentingMiddleware(
 	requestCount metrics.Counter,
 	requestLatency metrics.Histogram,
 ) ServiceMiddleware {

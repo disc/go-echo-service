@@ -1,11 +1,11 @@
-package main
+package echoservice
 
 import (
 	"github.com/go-kit/kit/log"
 	"time"
 )
 
-func loggingMiddleware(logger log.Logger) ServiceMiddleware {
+func LoggingMiddleware(logger log.Logger) ServiceMiddleware {
 	return func(next EchoService) EchoService {
 		return logwm{logger, next}
 	}

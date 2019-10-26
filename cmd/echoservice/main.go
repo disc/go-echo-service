@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"github.com/disc/go-echo-service/pkg/echoservice"
 	"github.com/go-kit/kit/log"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	httptransport "github.com/go-kit/kit/transport/http"
@@ -38,16 +39,16 @@ func main() {
 		Help:      "Total duration of requests in microseconds.",
 	}, fieldKeys)
 
-	var svc EchoService
-	svc = echoService{}
-	svc = proxyingMiddleware(context.Background(), *proxy, logger)(svc)
-	svc = loggingMiddleware(logger)(svc)
-	svc = instrumentingMiddleware(requestCount, requestLatency)(svc)
+	var svc echoservice.EchoService
+	svc = echoservice.NewEchoService()
+	svc = echoservice.ProxyingMiddleware(context.Background(), *proxy, logger)(svc)
+	svc = echoservice.LoggingMiddleware(logger)(svc)
+	svc = echoservice.InstrumentingMiddleware(requestCount, requestLatency)(svc)
 
 	echoHandler := httptransport.NewServer(
-		makeEchoEndpoint(svc),
-		decodeEchoRequest,
-		encodeResponse,
+		echoservice.MakeEchoEndpoint(svc),
+		echoservice.DecodeEchoRequest,
+		echoservice.EncodeResponse,
 	)
 
 	http.Handle("/echo", echoHandler)
