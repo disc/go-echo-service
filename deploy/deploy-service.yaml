@@ -6,7 +6,7 @@
         path: /tmp/go-echo-service
         state: directory
     - name: Copiy built application to the remote server
-      copy: src=../app dest=/tmp/go-echo-service/app
+      copy: src=../.build/app dest=/tmp/go-echo-service/app
         mode=0755
     - name: Create systemd unit file
       template: src=go-echo.service.j2 dest=/lib/systemd/system/go-echo.service mode=644
