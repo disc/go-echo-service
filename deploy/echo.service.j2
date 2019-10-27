@@ -1,7 +1,11 @@
 [Unit]
 Description=Go echo service
+Wants=network-online.target
+After=network-online.target
 
 [Service]
+Type=simple
+
 User=www-data
 Group=www-data
 
@@ -9,6 +13,9 @@ ExecStart = /tmp/echo-service --listen=:%i
 
 Restart=always
 RestartSec=3
+
+MemoryLimit=500M
+MemoryAccounting=true
 
 [Install]
 WantedBy=multi-user.target
