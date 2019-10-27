@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"github.com/disc/go-echo-service/pkg/echoservice"
 	"github.com/go-kit/kit/log"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
@@ -57,6 +58,9 @@ func main() {
 	router := http.NewServeMux()
 	router.Handle("/echo", echoHandler)
 	router.Handle("/metrics", promhttp.Handler())
+	router.HandleFunc("/healthz", func(writer http.ResponseWriter, request *http.Request) {
+		fmt.Fprintf(writer, "OK")
+	})
 
 	server := &http.Server{
 		Addr:    *listen,
