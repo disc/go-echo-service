@@ -11,6 +11,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 var (
@@ -51,8 +54,37 @@ func main() {
 		echoservice.EncodeResponse,
 	)
 
-	http.Handle("/echo", echoHandler)
-	http.Handle("/metrics", promhttp.Handler())
-	logger.Log("msg", "HTTP", "addr", *listen)
-	logger.Log("err", http.ListenAndServe(*listen, nil))
+	router := http.NewServeMux()
+	router.Handle("/echo", echoHandler)
+	router.Handle("/metrics", promhttp.Handler())
+
+	server := &http.Server{
+		Addr:    *listen,
+		Handler: router,
+	}
+
+	go func() {
+		logger.Log("msg", "HTTP", "addr", *listen)
+		logger.Log("err", server.ListenAndServe())
+	}()
+
+	graceful(server, logger, 5*time.Second)
+}
+
+func graceful(server *http.Server, logger log.Logger, timeout time.Duration) {
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
+
+	<-stop
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	logger.Log("msg", "Shutdown with timeout", "timeout", timeout)
+
+	if err := server.Shutdown(ctx); err != nil {
+		logger.Log("error", err)
+	} else {
+		logger.Log("msg", "Server gracefully stopped")
+	}
 }
