@@ -8,7 +8,7 @@
         mode: 0755
     - name: Create systemd unit file
       template:
-        src: echo.service.j2
+        src: echo.service
         dest: "/lib/systemd/system/echo-service@.service"
         mode: 644
       become: true

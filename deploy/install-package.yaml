@@ -1,0 +1,14 @@
+---
+- hosts: remote
+  tasks:
+    - name: Copy rpm package to the remote server
+      copy:
+        src: ./service.rpm
+        dest: /usr/local/src/service.rpm
+        mode: 0644
+      become: true
+    - name: install service rpm from a local file
+      yum:
+        name: /usr/local/src/service.rpm
+        state: present
+      become: true

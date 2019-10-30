@@ -12,3 +12,10 @@ test:
 .PHONY: deploy
 deploy:
 	@ansible-playbook deploy/deploy-service.yaml -i ./deploy/inventory
+
+# Requires install of https://github.com/goreleaser/nfpm
+build-rpm:
+	nfpm pkg -f deploy/service.yaml --target deploy/service.rpm
+
+install-rpm: build-rpm
+	ansible-playbook deploy/install-package.yaml -i ./deploy/inventory
