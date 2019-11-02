@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/disc/go-echo-service/pkg/echoservice"
+	"github.com/disc/go-echo-service/pkg/version"
 	"github.com/go-kit/kit/log"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	httptransport "github.com/go-kit/kit/transport/http"
@@ -67,6 +68,7 @@ func main() {
 		Handler: router,
 	}
 
+	logger.Log("msg", "Starting...", "Version", version.Version)
 	go func() {
 		logger.Log("msg", "HTTP", "addr", *listen)
 		logger.Log("err", server.ListenAndServe())

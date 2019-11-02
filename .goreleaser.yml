@@ -1,0 +1,37 @@
+# Make sure to check the documentation at http://goreleaser.com
+before:
+  hooks:
+    - go get ./...
+
+builds:
+  -
+    main: cmd/echoservice/main.go
+    binary: echo-service
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+    env:
+      - GO111MODULE=on
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X "github.com/disc/go-echo-service/pkg/version.Version={{ .Version }}"
+snapshot:
+  name_template: "{{ .Tag }}-next"
+nfpms:
+  -
+    name_template: "{{ .ProjectName }}-{{ .Version }}.el7.{{ .Arch }}"
+    maintainer: "Alexandr Hacicheant <a.hacicheant@gmail.com>"
+    replacements:
+      amd64: x86_64
+    description: "Echo service description"
+    license: MIT
+    formats:
+      - rpm
+    files:
+    config_files:
+      "deploy/echo.service": "/etc/systemd/system/echo-service@.service"
+    scripts:
+      postinstall: "deploy/scripts/postinstall.sh"
+      preremove: "deploy/scripts/preremove.sh"

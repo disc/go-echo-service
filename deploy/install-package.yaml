@@ -3,7 +3,7 @@
   tasks:
     - name: Copy rpm package to the remote server
       copy:
-        src: ./service.rpm
+        src: ../dist/go-echo-service-v0.1.13-next.el7.x86_64.rpm
         dest: /usr/local/src/service.rpm
         mode: 0644
       become: true

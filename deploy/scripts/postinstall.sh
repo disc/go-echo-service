@@ -1,8 +1,13 @@
-#!/bin/sh
-set -e
-
-if [ "$1" = configure ]; then
+# Install
+if [ $1 = 1 ]; then
     /usr/bin/systemctl daemon-reload
-    /usr/bin/systemctl enable echo-servicee@8080
-    /usr/bin/systemctl enable echo-servicee@8081
+    /usr/bin/systemctl enable echo-service@{8080..8081}
+    /usr/bin/systemctl restart echo-service@{8080..8081}
+fi
+
+# Upgrade
+if [ $1 = 2 ]; then
+    /usr/bin/systemctl daemon-reload
+    /usr/bin/systemctl enable echo-service@{8080..8081}
+    /usr/bin/systemctl restart echo-service@{8080..8081}
 fi
