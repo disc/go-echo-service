@@ -9,7 +9,7 @@ Type=simple
 User=www-data
 Group=www-data
 
-ExecStart = /tmp/echo-service --listen=:%i
+ExecStart = /usr/local/bin/echo-service --listen=:%i
 
 Restart=always
 RestartSec=3
